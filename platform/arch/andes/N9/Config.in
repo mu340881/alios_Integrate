@@ -1,0 +1,8 @@
+config AOS_ARCH_ANDES_N9
+    bool
+    help
+      arch for andes N9
+
+if AOS_ARCH_ANDES_N9
+# Configurations for arch andes N9
+endif

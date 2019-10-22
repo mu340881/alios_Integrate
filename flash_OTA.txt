@@ -1,0 +1,111 @@
+#if 0
+
+int atbm6431_OTA_Write(u8 *buffer, uint32_t length_wr)
+{
+	int len_last_wr;
+	uint32_t length = length_wr;
+  // Console_SetPolling(1);
+   printf("length %d remain_len %x\n",length,remain_len);
+
+   if(pota_header==NULL){
+   		printf("\n<ERR>%s Write fail\n",__func__);
+		return -1;
+   }
+   
+   if(head_offset < OTA_FW_HEAD_LEN){
+		}
+		file_offset=0;
+		return 0;
+   }
+   
+    if(file_offset < pota_header->fw1_length){
+		//write fw1+fw2,just need wr fw1 len
+	    if(file_offset+remain_len+length_wr > pota_header->fw1_length){
+			length= pota_header->fw1_length-file_offset-remain_len;
+			length_wr -= length;			
+	    }
+		else {
+			length_wr = 0;
+		}
+		
+		//printf("fw1 %x\n",file_offset);
+		if(remain_len){	
+			len_last_wr= min((FLASH_OTA_BLOCK-remain_len),length);
+			memcpy(pota_buf+remain_len,buffer,len_last_wr);
+			remain_len+=len_last_wr;
+			if(remain_len >= FLASH_OTA_BLOCK){
+				printf("fw1_write1 %x %x \n",file_offset,FLASH_OTA_BLOCK);
+				flash_updatafw1_write(file_offset,pota_buf,FLASH_OTA_BLOCK);
+				file_offset+=FLASH_OTA_BLOCK;
+				remain_len=0;
+				if(length-len_last_wr >= FLASH_OTA_BLOCK){						
+					printf("fw1_write2 %x %x \n",file_offset,(length-len_last_wr)&(~(FLASH_OTA_BLOCK-1)));
+					//Console_SetPolling(1);
+					flash_updatafw1_write(file_offset,buffer+len_last_wr,(length-len_last_wr)&(~(FLASH_OTA_BLOCK-1)));
+					file_offset+=(length-len_last_wr)&(~(FLASH_OTA_BLOCK-1));
+					len_last_wr += (length-len_last_wr)&(~(FLASH_OTA_BLOCK-1));
+				}
+				
+				memcpy(pota_buf,buffer+len_last_wr,length-len_last_wr);
+				remain_len=length-len_last_wr;
+			}
+		}
+		else {
+			len_last_wr= (length)&(~(FLASH_OTA_BLOCK-1));
+			printf("fw1_write3 %x %x \n",file_offset,len_last_wr);
+			flash_updatafw1_write(file_offset,buffer,len_last_wr);				
+			file_offset += len_last_wr;
+			memcpy(pota_buf,buffer+len_last_wr,length-len_last_wr);
+			remain_len=length-len_last_wr;
+		}
+		//write fw2 remain
+		if(length_wr){
+			length = length_wr;
+			buffer += len_last_wr;
+			goto __wr2;
+		}
+    }
+	else {
+__wr2:
+		//printf("f2 %x\n",file_offset);
+		if(remain_len){	
+			len_last_wr= min((FLASH_OTA_BLOCK-remain_len),length);
+			memcpy(pota_buf+remain_len,buffer,len_last_wr);
+			remain_len+=len_last_wr;
+			if(remain_len >= FLASH_OTA_BLOCK){
+				printf("fw2_write1 %x %x \n",file_offset,FLASH_OTA_BLOCK);
+				flash_updatafw2_write((file_offset-pota_header->fw1_length),pota_buf,FLASH_OTA_BLOCK);
+				file_offset+=FLASH_OTA_BLOCK;
+				remain_len=0;
+				if(length-len_last_wr >= FLASH_OTA_BLOCK){							
+					printf("fw2_write2 %x %x \n",file_offset,(length-len_last_wr)&(~(FLASH_OTA_BLOCK-1)));
+					//Console_SetPolling(1);
+					flash_updatafw2_write((file_offset-pota_header->fw1_length),buffer+len_last_wr,(length-len_last_wr)&(~(FLASH_OTA_BLOCK-1)));
+					file_offset+=(length-len_last_wr)&(~(FLASH_OTA_BLOCK-1));
+					len_last_wr += (length-len_last_wr)&(~(FLASH_OTA_BLOCK-1));
+				}
+				
+				memcpy(pota_buf,buffer+len_last_wr,length-len_last_wr);
+				remain_len=length-len_last_wr;
+			}
+		}
+		else {
+			len_last_wr= (length)&(~(FLASH_OTA_BLOCK-1));
+			printf("fw2_write3 %x %x \n",file_offset,len_last_wr);
+			flash_updatafw2_write((file_offset-pota_header->fw1_length),buffer,len_last_wr);			
+			memcpy(pota_buf,buffer+len_last_wr,length-len_last_wr);
+			file_offset += len_last_wr;
+			remain_len=length-len_last_wr;
+		}
+		
+		if(file_offset+remain_len >= pota_header->fw1_length+pota_header->fw2_length ){
+			printf("fw2_write end len_last_wr %d  %x %x\n",remain_len,file_offset,pota_header->fw1_length);
+			flash_updatafw2_write((file_offset-pota_header->fw1_length) ,pota_buf,remain_len);
+		}
+	}
+	
+	//printf("OTA_Write--\n");
+	//file_offset+= length;
+    return 0;
+}
+#endif

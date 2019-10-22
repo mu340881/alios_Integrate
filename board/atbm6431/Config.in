@@ -1,0 +1,40 @@
+config AOS_BOARD_ATBM6431
+    bool "ATBM6431"
+    select AOS_MCU_ATBM6431
+    select AOS_COMP_KERNEL_INIT
+    help
+        The ATBM6431 integrates a ANDES 32-bit RISC processor.
+
+if AOS_BOARD_ATBM6431
+# Configurations for board atbm6431
+
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
+config DEBUG_CONFIG_BACKTRACE
+    bool "Enable stack backtrace feature"
+    default y
+    help
+        set to y if you want to enable stack backtrace feature when system crash happened,
+        default y
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+
+
+endif

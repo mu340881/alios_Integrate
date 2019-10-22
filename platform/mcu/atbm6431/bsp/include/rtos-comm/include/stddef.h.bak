@@ -1,0 +1,5 @@
+#ifndef __STDDEF_H__
+#define __STDDEF_H__
+#include "type.h"
+typedef unsigned int size_t;
+#endif /* __STDDEF_H__ */

@@ -1,0 +1,21 @@
+config AOS_MCU_ATBM6431
+    bool
+    select AOS_COMP_LWIP
+    select AOS_ATBM_COMP_LWIP
+    select AOS_COMP_ALICRYPTO
+    select AOS_COMP_NETMGR
+    select AOS_COMP_RHINO if OSAL_CONFIG = rhino
+    select AOS_COMP_YLOOP
+    select AOS_COMP_DEBUG
+    select AOS_ARCH_ANDES_N9 if OSAL_CONFIG = rhino
+    help
+      driver & sdk for platform/mcu atbm6431
+
+if AOS_MCU_ATBM6431
+# Configurations for mcu atbm6431
+
+config OSAL_CONFIG
+    string
+    default rhino
+
+endif
