@@ -101,6 +101,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 		return -1;
 	}
 	if(uart->port == 2){
+		Command_SetPolling(1);
 	    for (int i = 0; i < size; i++) {
 	        Command_Putc(*pTmp++);
 	    }
